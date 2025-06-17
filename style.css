@@ -1,0 +1,1150 @@
+:root {
+    --primary-color: #3b82f6;
+    --primary-hover-color: #2563eb;
+    --secondary-color: #6b7280;
+    --secondary-hover-color: #4b5563;
+    --danger-color: #ef4444;
+    --danger-hover-color: #dc2626;
+    --success-color: #22c55e;
+    --success-hover-color: #16a34a;
+    --light-gray-color: #f3f4f6;
+    --medium-gray-color: #d1d5db;
+    --dark-gray-color: #374151;
+    --font-sans: 'Inter', sans-serif;
+    --editable-border-color: #fbbf24;
+    --editable-bg-color: #fef9c3;
+    --editable-text-hover-bg: #fef08a;
+    --insertion-point-color: #10b981;
+    --edit-mode-control-bg: rgba(250, 250, 250, 0.95);
+    --edit-mode-control-border: #c7d2fe;
+    --edit-mode-control-hover-bg: #e0e7ff;
+    --inplace-edit-text-hover-bg: #fffbeb;
+    --inplace-edit-text-focus-border: var(--primary-color);
+    --label-width: 100%; 
+    --input-vertical-padding: 0.5rem;
+    --input-horizontal-padding: 0.625rem;
+    --input-font-size: 0.875rem;
+}
+/* CSS für das Zahnschema */
+.dental-chart-wrapper {
+    display: flex; /* Ermöglicht flexible Anordnung der Zähne */
+    flex-wrap: wrap; /* Erlaubt Umbruch der Zähne in die nächste Zeile, falls nicht genügend Platz */
+    justify-content: center; /* Zentriert die Zahnreihen horizontal */
+    gap: 10px; /* Abstand zwischen den einzelnen Zahn-Containern */
+    padding: 20px; /* Innenabstand des gesamten Wrappers */
+    border: 1px solid #eee; /* Heller Rahmen um den Wrapper */
+    border-radius: 8px; /* Abgerundete Ecken für den Wrapper */
+    background-color: #f9f9f9; /* Heller Hintergrund für den Wrapper */
+    max-width: 900px; /* Maximale Breite des Wrappers für bessere Lesbarkeit */
+    margin: 20px auto; /* Zentriert den Wrapper auf der Seite */
+}
+
+.tooth-container {
+    text-align: center; /* Zentriert die Zahnnummer über dem SVG */
+    margin: 5px; /* Außenabstand um jeden Zahn-Container */
+    border: 1px solid #ddd; /* Etwas dunklerer Rahmen um jeden Zahn */
+    border-radius: 5px; /* Abgerundete Ecken für jeden Zahn-Container */
+    padding: 5px; /* Innenabstand innerhalb jedes Zahn-Containers */
+    background-color: #fff; /* Weißer Hintergrund für jeden Zahn-Container */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Leichter Schatten für einen Tiefeneffekt */
+}
+
+.tooth-number {
+    font-family: sans-serif; /* Standard-Schriftart ohne Serifen */
+    font-size: 14px; /* Schriftgröße der Zahnnummer */
+    font-weight: bold; /* Fettgedruckte Zahnnummer */
+    color: #333; /* Dunkelgraue Schriftfarbe */
+    margin-bottom: 5px; /* Abstand unter der Zahnnummer zum SVG */
+}
+
+.tooth-svg {
+    border: 1px solid #ccc; /* Rahmen um das SVG-Element selbst */
+    background-color: #f0f0f0; /* Heller Hintergrund für das SVG, um es abzuheben */
+}
+
+.polygon { /* Stil für die einzelnen Zahnoberflächen (SVG Polygone) */
+    fill: #ADD8E6; /* Hellblaue Füllfarbe für eine unmarkierte Oberfläche */
+    stroke: #333; /* Dunkelgraue Konturfarbe */
+    stroke-width: 0.5; /* Dünne Konturbreite */
+    cursor: pointer; /* Zeigt einen Klick-Cursor beim Überfahren an */
+    transition: fill 0.2s ease; /* Sanfter Übergang für die Füllfarbe bei Interaktion */
+}
+
+.polygon:hover {
+    fill: #87CEEB; /* Himmelblaue Füllfarbe beim Überfahren mit der Maus (Hover-Effekt) */
+}
+
+.polygon.selected {
+    fill: #FF6347; /* Tomatenrote Füllfarbe für eine ausgewählte Oberfläche */
+}
+
+        .surface-selected-transient {
+            stroke: #007bff; /* Blauer Rand für temporäre Auswahl */
+            stroke-width: 1.5px;
+            fill-opacity: 0.7;
+        }
+        .selectable-tooth-container.selected {
+            outline: 2px solid #007bff; /* Blauer Rand für ausgewählten Zahn-Container */
+            background-color: #e6f2ff; /* Heller blauer Hintergrund */
+        }
+        #surface-tooltip {
+            background-color: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            z-index: 1002; /* Über dem Kontextmenü */
+            box-shadow: 0px 0px 8px rgba(0,0,0,0.4);
+            pointer-events: none; /* Damit der Tooltip keine Maus-Events abfängt */
+        }
+        #surfaceFindingsContextMenu .multi-select-button {
+            min-width: 200px; /* Breite für das Popup-Multiselect */
+        }
+        #surfaceFindingsContextMenu .multi-select-options {
+            max-height: 200px; /* Scrollbar für viele Optionen */
+            overflow-y: auto;
+        }
+        .crown-overlay { /* Style for the crown overlay */
+            pointer-events: none; /* So it doesn't interfere with surface clicks */
+            /* stroke-dasharray: 2,2; /* Optional: dashed line for crown */
+        }
+        .inline-svg-tooth-host.crowned-tooth-svg .polygon { 
+        }
+body {
+    font-family: var(--font-sans);
+    background-color: var(--light-gray-color);
+    color: var(--dark-gray-color);
+    margin: 0;
+}
+
+.main-content-wrapper {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.app-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    background-color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    position: relative;
+}
+
+#appTitle {
+    color: #111827;
+    border-bottom: 2px solid var(--light-gray-color);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem; 
+}
+
+#topLevelSelectorContainer {
+    margin-bottom: 1.5rem;
+    padding: 0.5rem;
+    background-color: #f9fafb; 
+    border-radius: 0.5rem;
+    border: 1px solid var(--medium-gray-color);
+}
+
+#topLevelSelectorContainer .input-group {
+    margin-bottom: 0; 
+}
+
+#topLevelSelectorContainer label.control-label {
+    font-weight: 600;
+    color: var(--primary-color); 
+    margin-bottom: 0.5rem;
+}
+
+#topLevelSelectorContainer select {
+    font-size: 1rem; 
+    padding: 0.625rem var(--input-horizontal-padding);
+    border-width: 2px; 
+    border-color: var(--primary-color);
+}
+
+
+fieldset {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    min-width: 0;
+    background-color: #f9fafb;
+    position: relative;
+}
+
+legend {
+    font-weight: 600;
+    padding: 0 0.75rem;
+    color: #1f2937;
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem;
+    margin-left: -0.25rem;
+    position: relative;
+}
+
+fieldset.collapsible-fieldset > legend {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding-left: 0.25rem; 
+    transition: background-color 0.2s;
+}
+
+fieldset.collapsible-fieldset > legend:hover {
+    background-color: #eef2ff; 
+}
+
+fieldset.collapsible-fieldset > legend::before {
+    content: '▶';
+    display: inline-block;
+    margin-right: 0.5rem;
+    font-size: 0.8em;
+    color: var(--primary-color);
+    transition: transform 0.2s ease-in-out;
+}
+
+fieldset.collapsible-fieldset.expanded > legend::before {
+    transform: rotate(90deg);
+}
+
+fieldset.collapsible-fieldset > .fieldset-content {
+    display: none;
+    padding-top: 1rem; 
+}
+fieldset.collapsible-fieldset.config-subsection > .fieldset-content { 
+    border: 1px solid #e2e8f0;
+    border-top: none;
+    padding: 0.75rem;
+    border-bottom-left-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+
+
+fieldset.collapsible-fieldset.expanded > .fieldset-content {
+    display: block;
+}
+fieldset.collapsible-fieldset > *:not(legend):not(.fieldset-content):not(.editable-element-overlay) {
+    display: none; 
+}
+fieldset.collapsible-fieldset.expanded > *:not(legend):not(.fieldset-content):not(.editable-element-overlay) {
+    display: block; 
+}
+
+label, .control-label {
+    display: block;
+    margin-bottom: 0.375rem;
+    color: var(--dark-gray-color);
+    font-weight: 500;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    position: relative;
+    box-sizing: border-box;
+}
+.paired-structure-label {
+    display: block;
+    margin-bottom: 0.375rem;
+    color: var(--dark-gray-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.input-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    position: relative;
+}
+
+.input-group > label.control-label,
+.input-group > span.control-label {
+    flex: 0 0 var(--label-width);
+    margin-bottom: 0;
+    box-sizing: border-box;
+}
+
+.input-group > input[type="text"],
+.input-group > input[type="number"],
+.input-group > textarea,
+.input-group > select,
+.input-group > .multi-select-container,
+.input-group > .multi-select-button {
+    flex-grow: 1;
+    min-width: 0;
+    margin-top: 0;
+}
+
+.multi-select-container.input-group > label.control-label {
+    margin-bottom: 0;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: var(--label-width);
+}
+.multi-select-container.input-group > .multi-select-button {
+    flex-grow: 1;
+    margin-top: 0;
+}
+
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+    width: 100%;
+    padding: var(--input-vertical-padding) var(--input-horizontal-padding);
+    border: 1px solid var(--medium-gray-color);
+    border-radius: 0.375rem;
+    box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    min-width: 0;
+    background-color: white;
+    font-size: var(--input-font-size);
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+     border-color: var(--primary-color);
+     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+     outline: none;
+}
+
+textarea {
+    min-height: calc( (var(--input-font-size) * 1.5 * 2) + (var(--input-vertical-padding) * 2) + 2px );
+    resize: vertical;
+    overflow-y: auto;
+}
+
+.paired-structure-group {
+    margin-bottom: 1rem;
+    border-left: 3px solid #e5e7eb;
+    padding-left: 0.75rem;
+    padding-top: 0.5rem;
+    position: relative;
+}
+.paired-controls-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.paired-controls-container > div {
+    flex: 1 1 150px;
+    min-width: 150px;
+    margin-bottom: 0;
+    position: relative;
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.625rem 1.25rem;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    font-weight: 500;
+    margin-top: 5px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+button:hover {
+    background-color: var(--primary-hover-color);
+    transform: translateY(-1px);
+}
+button:active {
+    transform: translateY(0px);
+}
+
+button.secondary {
+    background-color: var(--secondary-color);
+}
+button.secondary:hover {
+    background-color: var(--secondary-hover-color);
+}
+button.danger {
+    background-color: var(--danger-color);
+}
+button.danger:hover {
+    background-color: var(--danger-hover-color);
+}
+button.success {
+    background-color: var(--success-color);
+}
+button.success:hover {
+    background-color: var(--success-hover-color);
+}
+
+#copyFeedback {
+    min-height: 1.25rem;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+#befundZusammenfassung {
+    min-height: 150px;
+    background-color: #fdfdff;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 0.9em;
+    border-color: var(--medium-gray-color);
+    white-space: pre-wrap;
+    padding: 0.625rem;
+}
+.hidden-field {
+     display: none;
+}
+
+.multi-select-container {
+    position: relative;
+}
+.paired-controls-container .multi-select-container {
+     margin-bottom: 0;
+}
+
+.multi-select-button {
+    display: flex; 
+    align-items: center;
+    width: 100%; 
+    padding: var(--input-vertical-padding) var(--input-horizontal-padding);
+    border: 1px solid var(--medium-gray-color);
+    border-radius: 0.375rem;
+    background-color: white;
+    cursor: pointer;
+    text-align: left; 
+    min-height: calc(var(--input-font-size) * 1.5 + var(--input-vertical-padding) * 2 + 2px);
+    height: auto; 
+    font-size: var(--input-font-size);
+    line-height: 1.5;
+    position: relative; 
+    box-sizing: border-box;
+    overflow: hidden; /* Button selbst beschneiden */
+}
+
+.multi-select-button-text-wrapper {
+    flex-grow: 1; 
+    display: block; /* Wichtig für text-overflow */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0; /* Erlaubt dem Element zu schrumpfen */
+    text-align: left; /* Standard Textausrichtung */
+}
+
+.multi-select-button::after { 
+    content: '▼';
+    margin-left: 0.5rem; 
+    font-size: 0.8em;
+    color: var(--secondary-color);
+    pointer-events: none;
+    flex-shrink: 0; 
+}
+
+.multi-select-options {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid var(--medium-gray-color);
+    border-radius: 0.375rem;
+    margin-top: 2px;
+    padding: 0.5rem;
+    z-index: 1000;
+    overflow-y: visible;
+    max-height: none;
+    width: 100%;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+.multi-select-options.active {
+    display: block;
+    z-index: 1040;
+}
+.multi-select-options label {
+    display: block;
+    padding: 0.375rem 0.625rem;
+    cursor: pointer;
+    font-weight: normal;
+    margin-bottom: 0;
+    border-radius: 0.25rem;
+    transition: background-color 0.15s;
+    font-size: var(--input-font-size);
+}
+.multi-select-options label:hover {
+    background-color: var(--light-gray-color);
+}
+.multi-select-options input[type="checkbox"] {
+    margin-right: 0.5rem;
+    accent-color: var(--primary-color);
+    vertical-align: middle;
+}
+.multi-select-options .sonstiges-input {
+    margin-top: 0.5rem;
+    padding: 0.375rem 0.625rem;
+    font-size: 0.9em;
+    width: calc(100% - 1.25rem);
+    margin-left: 0.625rem;
+    border: 1px solid #e5e7eb;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+}
+.modal-content {
+    background-color: #fefefe;
+    margin: 8% auto;
+    padding: 25px 30px;
+    border: 1px solid #bbb;
+    width: 90%;
+    max-width: 700px;
+    border-radius: 0.75rem;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 1051;
+}
+
+#genericConfigModal > div {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+
+.close-btn {
+    color: #999;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.close-btn:hover, .close-btn:focus {
+    color: #333;
+    text-decoration: none;
+}
+.zahnschema-container {
+     margin-bottom: 20px;
+     border: 1px solid #e0e0e0;
+     padding: 15px;
+     border-radius: 0.375rem;
+     background: #f9f9f9;
+}
+.zahnschema-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.zahnschema-quadrant {
+    display: flex;
+    height: auto;
+}
+.zahnschema-mitte {
+    width: 12px;
+    border-left: 1.5px solid #bbb;
+    height: 35px;
+    margin: 0 6px;
+}
+.zahn {
+    border: 1px solid #bbb;
+    padding: 12px 6px;
+    margin: 2px;
+    min-width: 35px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #fff;
+    user-select: none;
+    border-radius: 0.25rem;
+    font-size: 0.95em;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.1s;
+}
+.zahn.selected {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-hover-color);
+    transform: scale(1.05);
+}
+.zahn:hover:not(.selected) {
+     background-color: #e9ecef;
+     border-color: #adb5bd;
+}
+#selected-teeth-output {
+    margin-top: 20px;
+    font-weight: 500;
+    min-height: 1.5rem;
+    text-align: left;
+    padding-left: 10px;
+    color: var(--dark-gray-color);
+    font-size: 0.95em;
+}
+.modal-buttons {
+    margin-top: 25px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+#pathologische-zahnbefunde-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+    padding: 0.3rem;
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+    min-width: 0;
+    border: 1px solid #e5e7eb;
+    position: relative;
+    height: auto;
+    min-height: min-content;
+    max-height: none;
+    overflow-y: visible;
+
+}
+.kiefer-row {
+    display: flex;
+    gap: 0.3rem;
+    width: 100%;
+    min-width: 0; /* Geändert von max-content zu 0 */
+}
+.quadrant-container {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(8, minmax(35px, 1fr));
+    gap: 3px;
+    padding: 0.15rem;
+    border: 1px solid #dde1e6;
+    border-radius: 0.3rem;
+    background-color: #fff;
+    min-width: 0;
+
+}
+.inline-zahn-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.25rem 0.15rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.2rem;
+    background-color: white;
+    min-height: 42px;
+    transition: opacity 0.3s, background-color 0.3s;
+    box-sizing: border-box;
+    position: relative;
+    min-width: 0; 
+}
+.inline-zahn-container.missing {
+    opacity: 0.4;
+    background-color: #e5e7eb;
+}
+.inline-zahn-number {
+    font-weight: 500;
+    font-size: 0.75em;
+    color: #1f2937;
+    text-align: center;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-bottom: 2px;
+}
+.inline-zahn-findings-select {
+    width: 100%;
+    margin-top: auto;
+    position: relative;
+    flex-shrink: 0;
+    min-width: 0; 
+}
+
+.inline-zahn-container .multi-select-button {
+     display: flex !important; /* Wichtig, um Standard-Button-Display zu überschreiben */
+     align-items: center;
+     min-height: 20px; 
+     height: auto; 
+     padding: 0.15rem 0.25rem; 
+     font-size: 0.7em;     
+     background-color: #f9fafb;
+     border-color: #d1d5db;
+     line-height: 1.3;
+     width: 100%; 
+     text-align: left; 
+     box-sizing: border-box;
+     overflow: hidden; 
+}
+
+/* Eigene Regel für den Text-Wrapper im Inline-Zahn-Button, um Spezifität zu erhöhen */
+.inline-zahn-container .multi-select-button .multi-select-button-text-wrapper {
+    flex-grow: 1;
+    display: block !important; /* Wichtig für Ellipsis */
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    min-width: 0 !important; /* Erlaubt Schrumpfen */
+}
+
+.inline-zahn-container .multi-select-button::after {
+     content: '▼';
+     margin-left: 0.2rem; 
+     font-size: 0.6em; 
+     color: var(--secondary-color);
+     pointer-events: none;
+     flex-shrink: 0; 
+     position: static; /* Nicht absolut, da der Button flex ist */
+     transform: none;
+}
+
+.inline-zahn-container .multi-select-options {
+    font-size: 0.875em;
+}
+.inline-zahn-container .multi-select-options.active {
+    z-index: 1040;
+    width: 200px;
+    min-width: 180px;
+    max-width: 240px;
+    max-height: none;
+    overflow-y: visible;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.18);
+    margin-top: 1px;
+}
+.quadrant-container .inline-zahn-container:first-child .multi-select-options.active {
+    left: 0;
+    transform: translateX(0);
+}
+.quadrant-container .inline-zahn-container:last-child .multi-select-options.active {
+    left: auto;
+    right: 0;
+    transform: translateX(0);
+}
+ .inline-zahn-container .multi-select-options label {
+     padding: 0.25rem 0.5rem;
+ }
+ .inline-zahn-container .multi-select-options input[type="checkbox"] {
+     margin-right: 0.35rem;
+ }
+ .inline-zahn-container .multi-select-options .sonstiges-input {
+     padding: 0.25rem 0.5rem;
+     font-size: 0.9em;
+ }
+
+.dynamic-multiselects-container {
+    margin-top: 0.75rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid #e0e7ff;
+}
+.dynamic-multiselects-container .input-group {
+    margin-bottom: 0.85rem;
+}
+.dynamic-multiselects-container .control-label {
+    font-size: 0.85rem;
+    color: #4b5563;
+    flex: 0 0 calc(var(--label-width) - 20px);
+}
+.dynamic-multiselects-container .multi-select-container {
+    flex-grow: 1;
+}
+
+
+.placeholder-text {
+    font-style: italic;
+    color: #a1a1aa;
+}
+
+#configEditorOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(17, 24, 39, 0.8);
+    z-index: 2000;
+    overflow-y: auto;
+    padding: 2rem;
+    box-sizing: border-box;
+    backdrop-filter: blur(3px);
+}
+#configEditorOverlay .editor-content {
+    background-color: #f9fafb;
+    padding: 2rem 2.5rem;
+    border-radius: 0.75rem;
+    max-width: 950px;
+    margin: 2rem auto;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+}
+.config-section {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.75rem;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+    height: auto;
+    min-height: min-content;
+    max-height: none;
+    overflow-y: visible;
+}
+.config-section legend, .config-subsection legend {
+    font-weight: 600;
+    padding: 0 0.75rem;
+    color: #1f2937;
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    background-color: #f9fafb;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem;
+    height: auto;
+}
+.config-subsection {
+    border: 1px dashed #cbd5e1;
+    border-radius: 0.375rem;
+    padding: 1.25rem;
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+    background-color: #fdfdfe;
+
+    height: auto;
+    min-height: min-content;
+    max-height: none;
+    overflow-y: visible;
+}
+.config-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+.config-editor-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #111827;
+}
+.json-output-container {
+    margin-top: 2.5rem;
+    padding: 1.5rem;
+    background-color: #111827;
+    color: #e5e7eb;
+    border-radius: 0.5rem;
+    max-height: 450px;
+    overflow-y: auto;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 0.85em;
+}
+.json-output-container pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.hidden {
+    display: none !important;
+}
+#toggleConfigEditorBtn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background-color: var(--dark-gray-color);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.25rem;
+    z-index: 10;
+}
+#toggleConfigEditorBtn:hover {
+    background-color: #1f2937;
+}
+.add-btn {
+    background-color: var(--success-color);
+    font-size: 0.9rem;
+}
+.add-btn:hover {
+    background-color: var(--success-hover-color);
+}
+.remove-btn {
+    background-color: var(--danger-color);
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.75rem !important;
+    min-width: auto !important;
+}
+.remove-btn:hover {
+    background-color: var(--danger-hover-color);
+}
+
+.edit-mode-active .editable-element {
+    outline: 2px dashed var(--editable-border-color);
+    outline-offset: 2px;
+    position: relative;
+    transition: outline-color 0.3s, background-color 0.3s;
+    cursor: default;
+    height: auto;
+    overflow-y: visible;
+
+}
+.edit-mode-active .editable-element:hover {
+    background-color: var(--editable-bg-color);
+    outline-color: var(--primary-color);
+}
+
+.edit-mode-active .editable-element > legend:hover,
+.edit-mode-active .editable-element > label:hover,
+.edit-mode-active .editable-element > .control-label:hover,
+.edit-mode-active .editable-element > .paired-structure-label:hover,
+.edit-mode-active .editable-element > #appTitle:hover,
+.inplace-edit-active #appTitle:hover,
+.inplace-edit-active legend:hover,
+.inplace-edit-active label:hover,
+.inplace-edit-active .control-label:hover,
+.inplace-edit-active .paired-structure-label:hover,
+.inplace-edit-active button:not(.edit-props-btn):not(.clone-btn):not(.delete-btn):not(.drag-handle):hover {
+    background-color: var(--editable-text-hover-bg);
+    cursor: pointer;
+}
+
+.inplace-edit-active #appTitle,
+.inplace-edit-active legend,
+.inplace-edit-active label,
+.inplace-edit-active .control-label,
+.inplace-edit-active .paired-structure-label,
+.inplace-edit-active button:not(.edit-props-btn):not(.clone-btn):not(.delete-btn):not(.drag-handle) {
+    transition: background-color 0.2s;
+}
+
+.inline-edit-input {
+    border: 1px solid var(--inplace-edit-text-focus-border);
+    padding: 2px 4px;
+    font-size: inherit;
+    font-family: inherit;
+    color: inherit;
+    background-color: white;
+    border-radius: 3px;
+    box-shadow: 0 0 0 2px rgba(var(--primary-color), 0.2);
+    outline: none;
+    width: auto;
+    min-width: 100px;
+    max-width: 100%;
+    display: inline-block;
+    vertical-align: baseline;
+    margin: -2px -4px;
+}
+button > .inline-edit-input {
+    color: var(--dark-gray-color);
+    padding: 0.5em 0.8em;
+}
+
+
+.editable-element-overlay {
+    position: absolute;
+    top: -24px;
+    right: -5px;
+    background-color: var(--edit-mode-control-bg);
+    border: 1px solid var(--edit-mode-control-border);
+    border-radius: 5px;
+    padding: 2px 4px;
+    display: flex;
+    gap: 4px;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+    font-size: 0.7rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    height: auto;
+    overflow-y: visible;
+}
+.edit-mode-active .editable-element:hover .editable-element-overlay {
+    opacity: 1;
+    visibility: visible;
+}
+
+.edit-mode-active fieldset.editable-element > .editable-element-overlay {
+    top: 2px;
+    right: 2px;
+}
+
+.edit-mode-active legend.editable-element > .editable-element-overlay {
+    top: -2px;
+    right: -20px;
+}
+
+
+.editable-element-overlay button {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #4b5563;
+    cursor: pointer;
+    padding: 3px 4px;
+    font-size: 0.85rem;
+    line-height: 1;
+    min-width: auto;
+    margin: 0;
+    box-shadow: none;
+    border-radius: 3px;
+    transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+}
+.editable-element-overlay button:hover {
+    color: var(--primary-hover-color);
+    background-color: var(--edit-mode-control-hover-bg);
+    border-color: var(--edit-mode-control-border);
+}
+.editable-element-overlay .drag-handle { cursor: move; }
+.editable-element-overlay .drag-handle::before { content: "✥"; }
+.editable-element-overlay .clone-btn::before { content: "❏"; }
+.editable-element-overlay .delete-btn::before { content: "✕"; }
+.editable-element-overlay .edit-props-btn::before { content: "✎"; }
+
+.insertion-point {
+    display: none;
+    text-align: center;
+    margin: 10px 0;
+    position: relative;
+}
+.edit-mode-active .insertion-point,
+.inplace-edit-active .insertion-point {
+    display: block;
+}
+.insertion-point button {
+    background-color: var(--insertion-point-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    line-height: 30px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: background-color 0.2s, transform 0.1s;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.insertion-point button:hover {
+    background-color: #0f9973;
+    transform: scale(1.1);
+}
+.insertion-point::before, .insertion-point::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: calc(50% - 22px);
+    height: 1px;
+    background-color: #ccc;
+    z-index: -1;
+}
+.insertion-point::before { left: 0; }
+.insertion-point::after { right: 0; }
+
+.draggable-mirror {
+    background-color: var(--editable-bg-color) !important;
+    opacity: 0.8 !important;
+    border: 2px solid var(--primary-color) !important;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
+    z-index: 5000 !important;
+}
+.draggable-source--is-dragging {
+    opacity: 0.3 !important;
+}
+
+#specificElementEditContainer .input-group {
+    padding: 0.75rem;
+    border: 1px solid #dde1e6;
+    border-radius: 0.375rem;
+    background-color: #ffffff;
+    margin-bottom: 0.75rem;
+}
+#specificElementEditContainer .input-group label {
+    font-size: 0.8rem;
+    color: #4b5563;
+}
+#specificElementEditContainer input[type="text"],
+#specificElementEditContainer textarea {
+    font-size: 0.85rem;
+    padding: 0.5rem;
+}
+#specificElementEditContainer button {
+    margin-top: 1rem;
+}
+
+.editable-element {
+    position: relative;
+    height: auto;
+    overflow-y: visible;
+}
+.editable-element-overlay {
+    z-index: 10;
+}
+
+.editable-element .editable-element .editable-element-overlay {
+    z-index: 11;
+}
+.editable-element .editable-element .editable-element .editable-element-overlay {
+    z-index: 12;
+}
+
+.config-subsection details summary {
+    padding: 0.5rem;
+    background-color: #f0f4f8;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem;
+    transition: background-color 0.2s;
+}
+.config-subsection details summary:hover {
+    background-color: #e6eaf1;
+}
+.config-subsection details[open] summary {
+    background-color: #e0e7ff;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.config-subsection details > div {
+    border: 1px solid #e2e8f0;
+    border-top: none;
+    padding: 0.75rem;
+    border-bottom-left-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+
+.config-subsection .ml-4.mb-2.p-2 {
+    background-color: #f8f9fa;
+
+    height: auto;
+    min-height: min-content;
+    max-height: none;
+    overflow-y: visible;
+}
+.config-subsection .ml-4.mb-2.p-2:hover {
+    border-left-color: var(--primary-color);
+}
+
+/* Static text display specific styling */
+.static-text-content {
+    white-space: pre-wrap; /* Ensures line breaks from config are respected */
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--dark-gray-color);
+}
+
+.static-text-content p {
+    margin: 0; /* Reset paragraph margin if static text is wrapped in p */
+}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Röntgen Befundungs-Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 p-4 md:p-8 main-content-wrapper">
+
+    <div class="app-container">
+        <!-- <button id="toggleConfigEditorBtn" class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-800 text-white text-xs py-1 px-2 rounded z-20">
+            Konfiguration bearbeiten
+        </button> -->
+
+        <h1 id="appTitle" class="text-2xl md:text-3xl font-bold mb-4 text-gray-800 border-b pb-3">Röntgen Befundungs-Tool</h1>
+
+        <div id="topLevelSelectorContainer" class="mb-6">
+            </div>
+
+        <form id="befundungsForm">
+            <p class="placeholder-text text-center py-8">Formular wird initialisiert...</p>
+            </form>
+    </div>
+
+    <div id="zahnschemaModal" class="modal">
+        <div class="modal-content">
+            <span id="closeZahnschemaModalBtn" class="close-btn">&times;</span>
+            <h3 id="zahnschemaTitle" class="text-lg font-semibold mb-4">Zahnauswahl</h3>
+            <div id="zahnschemaContainer" class="zahnschema-container">
+                 <p class="text-xs text-gray-500 placeholder-text">Zahnschema wird geladen...</p>
+            </div>
+            <div id="selected-teeth-output">Ausgewählte Zähne: Keine</div>
+            <div class="modal-buttons">
+                <button type="button" id="cancelZahnschemaBtn" class="cancel-btn">Abbrechen</button>
+                <button type="button" id="confirmZahnschemaBtn" class="confirm-btn">Bestätigen</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="configs/appConfig.js" defer></script>
+    <script src="configs/config_formSections_opg_newformat.js" defer></script>
+    <script src="configs/config_formSections_dvt_Ok_newformat.js" defer></script>
+
+    <script src="configs/svg-teeth.js" defer></script>
+
+    <script src="config-loader.js" defer></script>
+    <script src="tooth-rendering.js" defer></script>
+    <script src="surface-menu.js" defer></script>
+
+    <script src="app-state-and-core.js" defer></script>
+    <script src="zahnschema-module.js" defer></script>
+    <script src="ui-components.js" defer></script>
+    <script src="inline-zahnschema-module.js" defer></script>
+    <script src="app-init-and-listeners.js" defer></script>
+    </body>
+</html>
