@@ -1016,5 +1016,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeZahnschema();
         }
     });
+
+    if (window.HotkeyModule) {
+        window.HotkeyModule.init();
+    }
+
     console.log("[AppInit] DOMContentLoaded handler finished.");
 });
